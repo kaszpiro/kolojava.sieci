@@ -24,7 +24,7 @@ public class Server {
             while(true) {
                 Socket socket = servSocket.accept();
                 PrintWriter writer = new PrintWriter(socket.getOutputStream());
-                writer.println("Witaj kliencie !");
+                writer.println("Witaj kliencie " + socket.getLocalAddress() + " !");
                 writer.close();
             }
 
