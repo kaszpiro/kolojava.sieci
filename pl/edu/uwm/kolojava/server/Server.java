@@ -1,9 +1,9 @@
 package pl.edu.uwm.kolojava.server;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 
 /**
  * Created by kropiak on 2017-04-21.
@@ -23,8 +23,17 @@ public class Server {
 
             while(true) {
                 Socket socket = servSocket.accept();
+                InputStreamReader in = new InputStreamReader(socket.getInputStream());
+                BufferedReader reader = new BufferedReader(in);
                 PrintWriter writer = new PrintWriter(socket.getOutputStream());
                 writer.println("Witaj kliencie " + socket.getLocalAddress() + " !");
+                writer.flush();
+                String message;
+                while((message = reader.readLine()) != null){
+                    System.out.println("Odczytano: " + message);
+                    writer.println("Echo " + new Date().toString() + ": " + message);
+                    writer.flush();
+                }
                 writer.close();
             }
 

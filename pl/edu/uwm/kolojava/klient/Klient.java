@@ -1,8 +1,6 @@
 package pl.edu.uwm.kolojava.klient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -11,33 +9,53 @@ import java.net.UnknownHostException;
  */
 public class Klient {
 
+    private static PrintWriter writer;
+    private static BufferedReader reader;
+    private static String server;
+    private static Socket socket;
+    private static int port = 7777;
+
     public static void main(String[] args){
         Klient klient = new Klient();
-        klient.connectToServer(args[0]);
+        server = args[0];
+        //inicjalizujemy połaczenie poprzez gniazdo
+        connect();
+
+        while(true){
+            System.out.println("Wpisz treść wiadomości");
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String message;
+            try {
+                while ((message = br.readLine()) != null) {
+                    sendMessage(message);
+                    System.out.println(reader.readLine());
+                    if(message.equals("quit")){
+                        socket.close();
+                        System.exit(0);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    private void connectToServer(String host){
-        int port = 7777;
-
-        try{
-            Socket socket = new Socket(host, port);
+    private static void connect(){
+        try {
+            socket = new Socket(server, port);
             InputStreamReader inStream = new InputStreamReader(socket.getInputStream());
-            BufferedReader buffReader = new BufferedReader(inStream);
-            System.out.println(buffReader.readLine());
-            buffReader.close();
-
-        } catch (UnknownHostException e) {
-            System.out.println("Nie udało się odnaleźć hosta " + host);
+            reader = new BufferedReader(inStream);
+            System.out.println(reader.readLine());
+            writer = new PrintWriter(socket.getOutputStream());
+            //buffReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void sendMessage(String recipient){
-
-    }
-
-    private void sendEcho(String message){
-
+    private static void sendMessage(String message){
+        writer.println(message);
+        writer.flush();
+        //writer.close();
     }
 }
